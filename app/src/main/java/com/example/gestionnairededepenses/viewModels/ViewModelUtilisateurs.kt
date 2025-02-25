@@ -80,9 +80,6 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
 
     // Deconnecter le utilisateur ...
     fun deconnecterUtilisateur(nomUtilisateur: String) {
-//        val nomFichier = AppOutils.apporteNomFichierUtilisateur(nomUtilisateur)
-//        val sharedPreferencesUtilisateur =
-//            getApplication<Application>().getSharedPreferences(nomFichier, MODE_PRIVATE)
         // Changer le statut d'utilisateur parti dans les données
         sharedPreferences.edit().clear().apply()
         sharedPreferences.edit().putBoolean("UTILISATEUR_VERIFIE", false).apply()
@@ -98,22 +95,32 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
         "UserPrefs ${utilisateur.nomUtilisateur}",
         MODE_PRIVATE
     )
-    private val _transactions = MutableStateFlow<List<Transaction>>(emptyList()) // ViewModel
-    val transactions: StateFlow<List<Transaction>> = _transactions.asStateFlow() // View
+    // Permettre la gestion de la iste des utilisateurs - privée, invisible aux Views
+    private val _transactions = MutableStateFlow<List<Transaction>>(emptyList())
+    // Details d'un utilisateur  - visible aux Views au besoin
+    val transactions: StateFlow<List<Transaction>> = _transactions.asStateFlow()
 
+    // Initialise les utilisateurs par le fonction chargerUtilisateurs
     init {
-        chargerTransactions()
+        if (utilisateur.estVerifie) {
+            chargerTransactions(utilisateur.nomUtilisateur)
+        } else {
+
+        }
     }
 
-    private fun chargerTransactions() {
+    // Charger la liste des utilisateurs du fichier et le convertir de json à List
+    // - privée, inaccessible aux Views
+    private fun chargerTransactions(nomUtilisateur: String) {
+        val nomUtilisateur = utilisateur.nomUtilisateur
         val jsonString = userPreferences.getString(
             "PREF_KEY_TRANSACTIONS",
             null
         ) ?: return
         val listType = object : TypeToken<List<Transaction>>() {}.type
-        try {
+        try { // Try ... catch suggére par Mistral pour eviter l'ecrasement en raison d'erreur JSON
             val transactionsList: List<Transaction> = gson.fromJson(jsonString, listType)
-            _transactions.value = transactionsList // Change suggèré par Mistal
+            _transactions.value = transactionsList // Ajoute value suggèré par Mistal
             Log.i("System.out", "VMU: Transactions chargées: $transactionsList")
         } catch (e: Exception) {
             Log.i("System.out", "VMU: Erreur lors du chargement des transactions", e)
@@ -124,7 +131,7 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
 
         }
     }
-
+    // Ajoute d'une nouvelle Transaction - donne un UUID et appeller fun sauvegarderTransaction pour le stocker.
     fun ajouterTransaction(selectedOption: String, montant: Double, categorieTransaction: String) {
 
         val nouvelleTransaction = Transaction(
@@ -138,6 +145,7 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
         Log.i("System.out", "VMU: TxnAjouté ${utilisateur.nomUtilisateur}, ${nouvelleTransaction}")
     }
 
+    // Sauvegarder le nouvelleTransaction en fichier dediée au utilisateur
     fun sauvegarderTransaction(nomUtilisateur: String) {
         // val nomFichier = AppOutils.apporteNomFichierUtilisateur(nomUtilisateur)
         val userPreferences: SharedPreferences = application.getSharedPreferences(

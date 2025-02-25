@@ -26,9 +26,9 @@ fun Accueil(
     viewModelUtilisateur: ViewModelUtilisateur, navController: NavHostController
 ) {
 
-    var utilisateur = viewModelUtilisateur.utilisateur
+    val utilisateur = viewModelUtilisateur.utilisateur
 
-    Scaffold() { paddingValues ->
+    Scaffold { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()

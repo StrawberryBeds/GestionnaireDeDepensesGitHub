@@ -38,10 +38,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.gestionnairededepenses.viewModels.ViewModelTransactions
+import com.example.gestionnairededepenses.viewModels.ViewModelUtilisateur
 
 @Composable
-fun EcranTransactions(viewModel: ViewModelTransactions, navController: NavHostController) {
+fun EcranTransactions(viewModel: ViewModelUtilisateur, navController: NavHostController) {
 
     val transactions by viewModel.transactions.collectAsState()
     var nouvelleMontant by remember { mutableStateOf("") }
@@ -144,7 +144,7 @@ fun EcranTransactions(viewModel: ViewModelTransactions, navController: NavHostCo
                             val montantDouble = text.toDoubleOrNull()
                             if (montantDouble != null)
                             {
-                                viewModel.ajouteTransaction(
+                                viewModel.ajouterTransaction(
                                     selectedOption,
                                     montantDouble,
                                     nouvelleCategoryTransaction
@@ -168,19 +168,15 @@ fun EcranTransactions(viewModel: ViewModelTransactions, navController: NavHostCo
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-//                        IconButton(onClick = { viewModel.toggleTransaction(transaction.idTransaction.toString()) }) {
-//                            Icon(
-//                                Icons.Default.Done,
-//                                contentDescription = "Revenu ou Dépense",
-//                                tint = if (transaction.estRevenu) Color.Green else Red
-//                            )
+//                        IconButton(onClick = { navController.navigate("ecran_details/${transaction.idTransaction}") }) {
+//                            Icon(Icons.Default.Edit, contentDescription = "Modifier")
 //                        }
-                        IconButton(onClick = { navController.navigate("ecran_details/${transaction.idTransaction}") }) {
-                            Icon(Icons.Default.Edit, contentDescription = "Modifier")
-                        }
                         Text("${transaction.montant}", modifier = Modifier.weight(1f))
+//                        Text("${transaction.categorieTransaction}", modifier = Modifier.weight(1f))
 
-                        IconButton(onClick = { viewModel.supprimeTransaction(idTransaction = transaction.idTransaction) }) {
+                        IconButton(onClick = {
+                            //    viewModel.supprimeTransaction(idTransaction = transaction.idTransaction)
+                        } ) {
                             Icon(Icons.Default.Delete, contentDescription = "Supprimer")
                         }
                     }

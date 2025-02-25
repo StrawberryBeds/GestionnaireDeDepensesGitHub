@@ -1,6 +1,8 @@
 package com.example.gestionnairededepenses
 
+import android.content.ContentValues.TAG
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -50,15 +52,15 @@ class MainActivity : ComponentActivity() {
 fun GestionnaireDeDepenses(
     viewModelTransactions: ViewModelTransactions,
     viewModelUtilisateur: ViewModelUtilisateur,
-    navController: NavHostController
+    navController: NavHostController,
 ) {
-
+    Log.i("System.out", "Lance de Composable MainActivity")
     // Avec l'aide de ChatGPT pour le fonction LaunchedEffect
-    LaunchedEffect(Unit) {
-        if (!viewModelUtilisateur.estUtilisateurVerifie()) {
-            navController.navigate("se_connecter")
-        }
-    }
+//    LaunchedEffect(Unit) {
+//        if (viewModelUtilisateur.) {
+//            navController.navigate("se_connecter")
+//        }
+//    }
 
     NavHost(
         navController = navController,

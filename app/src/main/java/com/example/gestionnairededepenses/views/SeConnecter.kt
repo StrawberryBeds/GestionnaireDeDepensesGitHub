@@ -8,11 +8,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Gray
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.gestionnairededepenses.viewModels.ViewModelUtilisateur
@@ -50,30 +51,32 @@ fun SeConnecter(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                BasicTextField(
+                TextField(
                     value = nomUtilisateur,
                     onValueChange = { nomUtilisateur = it },
+                    label = { Text("Nom utilisateur") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
                         .border(1.dp, Gray)
-                        .padding(8.dp),
-
-                    )
+                        .padding(8.dp)
+                )
             }
             Spacer(modifier = Modifier.padding(8.dp))
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                BasicTextField(
+                TextField(
                     value = motDePass,
                     onValueChange = { motDePass = it },
+                    label = { Text("Mot de passe") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
                         .border(1.dp, Gray)
                         .padding(8.dp),
+                    visualTransformation = PasswordVisualTransformation() // https://developer.android.com/develop/ui/compose/text/user-input
                 )
             }
 

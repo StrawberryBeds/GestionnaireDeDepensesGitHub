@@ -60,7 +60,6 @@ fun EcranTransactions(viewModel: ViewModelUtilisateur, navController: NavHostCon
 
     var expanded by remember { mutableStateOf(false) }
     var nouvelleCategorieTransaction by remember { mutableStateOf(Categories.SALAIRE) }
-
     val menuItems = Categories.values().toList()
 
     Scaffold() { paddingValues ->
@@ -210,7 +209,7 @@ fun EcranTransactions(viewModel: ViewModelUtilisateur, navController: NavHostCon
                     ) {
                         // Calculer la couleur en fonction de la condition
                         val textCouleur = if (transaction.selectedOption == "Revenu") {
-                            Color.Green
+                            Color.Black
                         } else {
                             Color.Red
                         }

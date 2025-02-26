@@ -183,7 +183,7 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
     fun modifieTransaction(
         idTransaction: String,
         selectedOption: String? = null,
-        montant: String? = null,
+        montant: String,
         categorieTransaction: String? = null,
         detailsSupplementaires: String? = null
     ) {

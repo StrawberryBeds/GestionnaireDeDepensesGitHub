@@ -60,4 +60,5 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation("com.google.code.gson:gson:2.10.1")
+
 }

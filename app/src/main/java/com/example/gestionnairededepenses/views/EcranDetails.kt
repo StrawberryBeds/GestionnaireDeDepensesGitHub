@@ -104,11 +104,10 @@ fun EcranDetails(
                 ) {
                     TextField(
                         value = text,
-                        onValueChange = { newMontant ->
-                            text = newMontant
-                            modifieMontant = newMontant
-                            doubleValue = newMontant.toDoubleOrNull()
-                            error = doubleValue == null && newMontant.isNotEmpty()
+                        onValueChange = { modifieMontant ->
+                            text = modifieMontant
+                            doubleValue = modifieMontant.toDoubleOrNull()
+                            error = doubleValue == null && modifieMontant.isNotEmpty()
                         },
                         label = { Text("Montant") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -159,15 +158,21 @@ fun EcranDetails(
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Button(
                         onClick = {
-                            if (modifieMontant.isNotBlank()) {
-                                viewModel.modifieTransaction(
-                                    idTransaction = transaction.idTransaction,
-                                    selectedOption = selectedOption,
-                                    montant = modifieMontant,
-                                    categorieTransaction = modifieCategorieTransaction.name,
-                                    detailsSupplementaires = modifieDetailsSupplementaires
-                                )
-                                navController.navigate("ecran_transactions")
+                            if (text.isNotEmpty()) {
+                                val montantDouble = text.toDoubleOrNull()
+                                if (montantDouble != null) {
+                                    viewModel.ajouterTransaction(
+                                        selectedOption,
+                                        montantDouble,
+                                        modifieCategorieTransaction.name,
+                                        modifieDetailsSupplementaires
+                                    )
+                                    selectedOption = radioOptions[0]
+                                    modifieMontant = ""
+                                    modifieCategorieTransaction.name
+                                    modifieDetailsSupplementaires = ""
+                                    navController.navigate("ecran_transactions")
+                                }
                             }
                         },
                         modifier = Modifier

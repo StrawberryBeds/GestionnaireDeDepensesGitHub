@@ -133,13 +133,17 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
         }
     }
     // Ajoute d'une nouvelle Transaction - donne un UUID et appeller fun sauvegarderTransaction pour le stocker.
-    fun ajouterTransaction(selectedOption: String, montant: Double, categorieTransaction: String) {
+    fun ajouterTransaction(selectedOption: String,
+                           montant: Double,
+                           categorieTransaction: String,
+                           detailsSupplenentaires: String) {
         val nomUtilisateur = utilisateur.nomUtilisateur
         val nouvelleTransaction = Transaction(
             idTransaction = UUID.randomUUID().toString(),
             selectedOption = selectedOption,
             montant = montant,
-            categorieTransaction = categorieTransaction)
+            categorieTransaction = categorieTransaction,
+            detailsSupplementaires = detailsSupplenentaires)
 
         _transactions.value = _transactions.value + nouvelleTransaction
         sauvegarderTransaction(nomUtilisateur = utilisateur.nomUtilisateur)

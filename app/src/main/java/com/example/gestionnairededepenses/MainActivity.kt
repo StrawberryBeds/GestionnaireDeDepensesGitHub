@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -50,12 +51,13 @@ fun GestionnaireDeDepenses(
     navController: NavHostController,
 ) {
     Log.i("System.out", "Lance de Composable MainActivity")
+
     // Avec l'aide de ChatGPT pour le fonction LaunchedEffect
-//    LaunchedEffect(Unit) {
-//        if (viewModelUtilisateur.) {
-//            navController.navigate("se_connecter")
-//        }
-//    }
+    LaunchedEffect(Unit) {
+        if (viewModelUtilisateur.utilisateur.estVerifie) {
+            navController.navigate("accueil")
+        }
+    }
 
     NavHost(
         navController = navController,

@@ -18,9 +18,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -41,6 +44,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.gestionnairededepenses.classes.Categories
 import com.example.gestionnairededepenses.viewModels.ViewModelUtilisateur
 
 @Composable
@@ -48,7 +52,7 @@ fun EcranTransactions(viewModel: ViewModelUtilisateur, navController: NavHostCon
 
     val transactions by viewModel.transactions.collectAsState()
     var nouvelleMontant by remember { mutableStateOf("") }
-    var nouvelleCategoryTransaction by remember { mutableStateOf("") }
+    var detailsSupplementaires by remember { mutableStateOf("") }
 
     val radioOptions = listOf("Revenu", "Dépense")
     var (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
@@ -57,7 +61,10 @@ fun EcranTransactions(viewModel: ViewModelUtilisateur, navController: NavHostCon
     var doubleValue by remember { mutableStateOf<Double?>(null) }
     var error by remember { mutableStateOf(false) }
 
+    var expanded by remember { mutableStateOf(false) }
+    var nouvelleCategorieTransaction by remember { mutableStateOf(Categories.SALAIRE) }
 
+    val menuItems = Categories.values().toList()
 
     Scaffold() { paddingValues ->
         Column(
@@ -124,83 +131,109 @@ fun EcranTransactions(viewModel: ViewModelUtilisateur, navController: NavHostCon
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                TextField(
-                    value = nouvelleCategoryTransaction,
-                    onValueChange = { nouvelleCategoryTransaction = it },
-                    label = { Text("Categorie") },
-                    modifier = Modifier
-                        .weight(1f)
-                        .border(1.dp, Gray)
-                        .padding(8.dp)
-                )
-            }
-            Spacer(
-                modifier = Modifier
-                    .padding(8.dp)
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Button(
-                    onClick = {
-                        if (text.isNotEmpty()) {
-                            val montantDouble = text.toDoubleOrNull()
-                            if (montantDouble != null)
-                            {
-                                viewModel.ajouterTransaction(
-                                    selectedOption,
-                                    montantDouble,
-                                    nouvelleCategoryTransaction
-                                )
-                                selectedOption = radioOptions[0]
-                                nouvelleMontant = ""
-                                nouvelleCategoryTransaction = ""
-                            }
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 8.dp)
+                OutlinedButton(
+                    onClick = { expanded = true },
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Ajouter")
+                    Text(text = nouvelleCategorieTransaction.name)
+                }
+
+                // Menu déroulant
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    menuItems.forEach { category ->
+                        DropdownMenuItem(
+                            text = { Text(text = category.name) },
+                            onClick = {
+                                nouvelleCategorieTransaction = category
+                                expanded = false
+                            }
+                        )
+                    }
                 }
             }
-            LazyColumn(modifier = Modifier.padding(top = 16.dp)) {
-                items(transactions, key = { it.idTransaction }) { transaction ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
+            TextField(
+                value = detailsSupplementaires,
+                onValueChange = { detailsSupplementaires = it },
+                label = { Text("Détails Supplementaires") },
+                modifier = Modifier
+                    .weight(1f)
+                    .border(1.dp, Gray)
+                    .padding(8.dp)
+            )
+        }
+            Spacer(
+                modifier = Modifier
+                        .padding(8.dp)
+            )
+            Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Button(
+                        onClick = {
+                            if (text.isNotEmpty()) {
+                                val montantDouble = text.toDoubleOrNull()
+                                if (montantDouble != null) {
+                                    viewModel.ajouterTransaction(
+                                        selectedOption,
+                                        montantDouble,
+                                        nouvelleCategorieTransaction.name,
+                                        detailsSupplementaires
+                                    )
+                                    selectedOption = radioOptions[0]
+                                    nouvelleMontant = ""
+                                    nouvelleCategorieTransaction.toString()
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 8.dp)
                     ) {
-                        // Calculer la couleur en fonction de la condition
-                        val textCouleur = if (transaction.selectedOption == "Revenu") {
-                            Color.Green
-                        } else {
-                            Color.Red
+                        Text("Ajouter")
+                    }
+                }
+                LazyColumn(modifier = Modifier.padding(top = 16.dp)) {
+                    items(transactions, key = { it.idTransaction }) { transaction ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            // Calculer la couleur en fonction de la condition
+                            val textCouleur = if (transaction.selectedOption == "Revenu") {
+                                Color.Green
+                            } else {
+                                Color.Red
+                            }
+                        IconButton(onClick = { navController.navigate("ecran_details/${transaction.idTransaction}") }) {
+                            Icon(Icons.Default.Edit, contentDescription = "Modifier")
                         }
-//                        IconButton(onClick = { navController.navigate("ecran_details/${transaction.idTransaction}") }) {
-//                            Icon(Icons.Default.Edit, contentDescription = "Modifier")
-//                        }
-                        Text("${transaction.montant}",
-                            color = textCouleur,
-                            modifier = Modifier.weight(1f)
-                        )
-                        Text("${transaction.categorieTransaction}",
-                            color = textCouleur,
-                            modifier = Modifier.weight(1f)
-                        )
+                            Text(
+                                "${transaction.montant}",
+                                color = textCouleur,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Text(
+                                "${transaction.categorieTransaction}",
+                                color = textCouleur,
+                                modifier = Modifier.weight(1f)
+                            )
 
 //                        IconButton(onClick = {
                             //    viewModel.supprimeTransaction(idTransaction = transaction.idTransaction)
 //                        } ) {
 //                            Icon(Icons.Default.Delete, contentDescription = "Supprimer")
 //                        }
+                        }
                     }
                 }
             }
         }
-    }
-}
 
-fun onOptionSelected(text: String) {
 
-}
+//fun onOptionSelected(text: String) {
+//
+//}

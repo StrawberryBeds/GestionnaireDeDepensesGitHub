@@ -15,7 +15,6 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
@@ -38,8 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Gray
-import androidx.compose.ui.graphics.Color.Companion.Green
-import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -155,83 +152,93 @@ fun EcranTransactions(viewModel: ViewModelUtilisateur, navController: NavHostCon
                     }
                 }
             }
-            TextField(
-                value = detailsSupplementaires,
-                onValueChange = { detailsSupplementaires = it },
-                label = { Text("Détails Supplementaires") },
-                modifier = Modifier
-                    .weight(1f)
-                    .border(1.dp, Gray)
-                    .padding(8.dp)
-            )
-        }
             Spacer(
                 modifier = Modifier
-                        .padding(8.dp)
+                    .padding(8.dp)
             )
             Row(
-                    modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                TextField(
+                    value = detailsSupplementaires,
+                    onValueChange = { detailsSupplementaires = it },
+                    label = { Text("Détails Supplementaires") },
+                    modifier = Modifier
+                        .weight(1f)
+                        .border(1.dp, Gray)
+                        .padding(8.dp)
+                )
+            }
+            Spacer(
+                modifier = Modifier
+                    .padding(8.dp)
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Button(
+                    onClick = {
+                        if (text.isNotEmpty()) {
+                            val montantDouble = text.toDoubleOrNull()
+                            if (montantDouble != null) {
+                                viewModel.ajouterTransaction(
+                                    selectedOption,
+                                    montantDouble,
+                                    nouvelleCategorieTransaction.name,
+                                    detailsSupplementaires
+                                )
+                                selectedOption = radioOptions[0]
+                                nouvelleMontant = ""
+                                nouvelleCategorieTransaction.name
+                                detailsSupplementaires = ""
+                            }
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp)
                 ) {
-                    Button(
-                        onClick = {
-                            if (text.isNotEmpty()) {
-                                val montantDouble = text.toDoubleOrNull()
-                                if (montantDouble != null) {
-                                    viewModel.ajouterTransaction(
-                                        selectedOption,
-                                        montantDouble,
-                                        nouvelleCategorieTransaction.name,
-                                        detailsSupplementaires
-                                    )
-                                    selectedOption = radioOptions[0]
-                                    nouvelleMontant = ""
-                                    nouvelleCategorieTransaction.toString()
-                                }
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 8.dp)
-                    ) {
-                        Text("Ajouter")
-                    }
+                    Text("Ajouter")
                 }
-                LazyColumn(modifier = Modifier.padding(top = 16.dp)) {
-                    items(transactions, key = { it.idTransaction }) { transaction ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            // Calculer la couleur en fonction de la condition
-                            val textCouleur = if (transaction.selectedOption == "Revenu") {
-                                Color.Green
-                            } else {
-                                Color.Red
-                            }
+            }
+            LazyColumn(modifier = Modifier.padding(top = 16.dp)) {
+                items(transactions, key = { it.idTransaction }) { transaction ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        // Calculer la couleur en fonction de la condition
+                        val textCouleur = if (transaction.selectedOption == "Revenu") {
+                            Color.Green
+                        } else {
+                            Color.Red
+                        }
                         IconButton(onClick = { navController.navigate("ecran_details/${transaction.idTransaction}") }) {
                             Icon(Icons.Default.Edit, contentDescription = "Modifier")
                         }
-                            Text(
-                                "${transaction.montant}",
-                                color = textCouleur,
-                                modifier = Modifier.weight(1f)
-                            )
-                            Text(
-                                "${transaction.categorieTransaction}",
-                                color = textCouleur,
-                                modifier = Modifier.weight(1f)
-                            )
+                        Text(
+                            "${transaction.montant}",
+                            color = textCouleur,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            "${transaction.categorieTransaction}",
+                            color = textCouleur,
+                            modifier = Modifier.weight(1f)
+                        )
 
 //                        IconButton(onClick = {
-                            //    viewModel.supprimeTransaction(idTransaction = transaction.idTransaction)
+                        //    viewModel.supprimeTransaction(idTransaction = transaction.idTransaction)
 //                        } ) {
 //                            Icon(Icons.Default.Delete, contentDescription = "Supprimer")
 //                        }
-                        }
                     }
                 }
             }
         }
+    }
+}
 
 
 //fun onOptionSelected(text: String) {

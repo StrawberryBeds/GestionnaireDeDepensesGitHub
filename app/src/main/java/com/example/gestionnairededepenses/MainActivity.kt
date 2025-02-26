@@ -13,12 +13,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.gestionnairededepenses.ui.theme.GestionnaireDeDepensesTheme
 import com.example.gestionnairededepenses.viewModels.ViewModelUtilisateur
 import com.example.gestionnairededepenses.views.Accueil
+import com.example.gestionnairededepenses.views.EcranDetails
 import com.example.gestionnairededepenses.views.EcranTransactions
 import com.example.gestionnairededepenses.views.SeConnecter
 
@@ -65,12 +68,28 @@ fun GestionnaireDeDepenses(
     ) {
         composable("se_connecter") { SeConnecter(viewModelUtilisateur, navController) }
         composable("accueil") { Accueil(viewModelUtilisateur, navController) }
-        composable("ecran_transactions") { EcranTransactions(viewModelUtilisateur,navController) }
+        composable("ecran_transactions") { EcranTransactions(viewModelUtilisateur, navController) }
+        composable(
+            "ecran_details/{idTransaction}",
+            arguments = listOf(navArgument("idTransaction") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val idTransaction = backStackEntry.arguments?.getString("idTransaction")
+            idTransaction?.let {
+                EcranDetails(viewModelUtilisateur, navController, idTransaction = it)
+            }
+        }
     }
 }
-//        composable("ecran_details/{taskId}") { backStackEntry ->
-//            val taskId = backStackEntry.arguments?.getString("taskId")?.toIntOrNull()
-//            taskId?.let { EcranDetails(viewModelUtilisateur, navController, it.toString()) }
+
+//        composable(
+//            "details/{idTransaction}",
+//            arguments = listOf(navArgument("idTransaction") { type = NavType.StringType })
+//        ) { backStackEntry ->
+//            val idTransaction = backStackEntry.arguments?.getString("idTransaction")
+//            idTransaction?.let {
+//                EcranDetails(navController = navController, idTransaction = it)
+//            }
 //        }
+//    }
 //    }
 //}

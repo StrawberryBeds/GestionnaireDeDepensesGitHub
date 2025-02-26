@@ -33,7 +33,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Gray
+import androidx.compose.ui.graphics.Color.Companion.Green
+import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -83,7 +86,7 @@ fun EcranTransactions(viewModel: ViewModelUtilisateur, navController: NavHostCon
                         )
                     RadioButton(
                         selected = (text == selectedOption),
-                        onClick = null // null recommended for accessibility with screen readers
+                        onClick = { onOptionSelected(text) }
                     )
                     Text(
                         text = text,
@@ -168,17 +171,29 @@ fun EcranTransactions(viewModel: ViewModelUtilisateur, navController: NavHostCon
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
                     ) {
+                        // Calculer la couleur en fonction de la condition
+                        val textCouleur = if (transaction.selectedOption == "Revenu") {
+                            Color.Green
+                        } else {
+                            Color.Red
+                        }
 //                        IconButton(onClick = { navController.navigate("ecran_details/${transaction.idTransaction}") }) {
 //                            Icon(Icons.Default.Edit, contentDescription = "Modifier")
 //                        }
-                        Text("${transaction.montant}", modifier = Modifier.weight(1f))
-//                        Text("${transaction.categorieTransaction}", modifier = Modifier.weight(1f))
+                        Text("${transaction.montant}",
+                            color = textCouleur,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text("${transaction.categorieTransaction}",
+                            color = textCouleur,
+                            modifier = Modifier.weight(1f)
+                        )
 
-                        IconButton(onClick = {
+//                        IconButton(onClick = {
                             //    viewModel.supprimeTransaction(idTransaction = transaction.idTransaction)
-                        } ) {
-                            Icon(Icons.Default.Delete, contentDescription = "Supprimer")
-                        }
+//                        } ) {
+//                            Icon(Icons.Default.Delete, contentDescription = "Supprimer")
+//                        }
                     }
                 }
             }

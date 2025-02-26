@@ -23,8 +23,8 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
 
     // Les données des utilisateurs dans la ficher - privée, invisible aux Views
     private val _utilisateur = Utilisateur(
-        nomEtPrenom = sharedPreferences.getString("NOM_ET_PRENOM", "Penny Counter")
-            ?: "Penny Counter",
+        nomEtPrenom = sharedPreferences.getString("NOM_ET_PRENOM", "Euro Riche")
+            ?: "Euro Riche",
         nomUtilisateur = sharedPreferences.getString("NOM_UTILISATEUR", "user@example.com")
             ?: "user@example.com",
         motDePasse = sharedPreferences.getString("MOT_DE_PASSE", "password123") ?: "password123",

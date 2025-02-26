@@ -25,8 +25,11 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,23 +49,19 @@ fun EcranDetails(
 ) {
     val transactions by viewModel.transactions.collectAsState()
     val transaction = transactions.find { it.idTransaction == idTransaction }
+
     transaction?.let {
         var modifieMontant by remember { mutableStateOf(it.montant.toString()) }
         var modifieDetailsSupplementaires by remember { mutableStateOf(it.detailsSupplementaires) }
-
-//    var modifieMontant by remember { mutableStateOf("${transaction?.montant}") }
-//    var modifieDetailsSupplementaires by remember { mutableStateOf("${transaction?. detailsSupplementaires}") }
-        var modifieCategorieTransaction by remember { mutableStateOf(Categories.SALAIRE) }
+        var modifieCategorieTransaction by remember { mutableStateOf(Categories.valueOf(it.categorieTransaction)) }
+        var selectedOption by remember { mutableStateOf(it.selectedOption) }
 
         val radioOptions = listOf("Revenu", "Dépense")
-        var (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
-
-        var text by remember { mutableStateOf("") }
+        var text by remember { mutableStateOf(modifieMontant) }
         var doubleValue by remember { mutableStateOf<Double?>(null) }
         var error by remember { mutableStateOf(false) }
 
         var expanded by remember { mutableStateOf(false) }
-
         val menuItems = Categories.values().toList()
 
         Scaffold() { paddingValues ->
@@ -77,108 +76,99 @@ fun EcranDetails(
                 Text("Détails de la transaction", style = MaterialTheme.typography.headlineMedium)
                 Spacer(modifier = Modifier.padding(8.dp))
 
-                if (transaction != null) {
-                    Row(Modifier.selectableGroup()) {
-                        radioOptions.forEach { text ->
-                            Modifier
-                                .fillMaxWidth()
-                                .height(56.dp)
-                                .selectable(
-                                    selected = (text == selectedOption),
-                                    onClick = { onOptionSelected(text) },
-                                    role = Role.RadioButton
-                                )
-                            RadioButton(
-                                selected = (text == selectedOption),
-                                onClick = { onOptionSelected(text) }
-                            )
-                            Text(
-                                text = text,
-                                style = MaterialTheme.typography.bodyLarge,
-                                modifier = Modifier.padding(start = 16.dp)
-                            )
-                        }
-                    }
-
-                    Row(
-                        modifier = Modifier
+                Row(Modifier.selectableGroup()) {
+                    radioOptions.forEach { option ->
+                        Modifier
                             .fillMaxWidth()
-                    ) {
-                        TextField(
-                            value = text,
-                            onValueChange = { modifieMontant ->
-                                text = modifieMontant
-                                doubleValue = modifieMontant.toDoubleOrNull()
-                                error = doubleValue == null && modifieMontant.isNotEmpty()
-
-                            },
-                            label = { Text("100.00") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                            isError = error,
-                            modifier = Modifier
-                                .weight(1f)
-                                .border(1.dp, Gray)
-                                .padding(8.dp)
+                            .height(56.dp)
+                            .selectable(
+                                selected = (option == selectedOption),
+                                onClick = { selectedOption = option },
+                                role = Role.RadioButton
+                            )
+                        RadioButton(
+                            selected = (option == selectedOption),
+                            onClick = { selectedOption = option }
+                        )
+                        Text(
+                            text = option,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(start = 16.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.padding(8.dp))
+                }
 
-                    OutlinedButton(
-                        onClick = { expanded = true },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(text = modifieCategorieTransaction.name)
-                    }
-
-                    // Menu déroulant
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        menuItems.forEach { category ->
-                            DropdownMenuItem(
-                                text = { Text(text = category.name) },
-                                onClick = {
-                                    modifieCategorieTransaction = category
-                                    expanded = false
-                                }
-                            )
-                        }
-                    }
-
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
                     TextField(
-                        value = modifieDetailsSupplementaires,
-                        onValueChange = { modifieDetailsSupplementaires = it },
-                        label = { Text("Détails Supplementaires") },
+                        value = text,
+                        onValueChange = { newMontant ->
+                            text = newMontant
+                            modifieMontant = newMontant
+                            doubleValue = newMontant.toDoubleOrNull()
+                            error = doubleValue == null && newMontant.isNotEmpty()
+                        },
+                        label = { Text("Montant") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        isError = error,
                         modifier = Modifier
                             .weight(1f)
                             .border(1.dp, Gray)
                             .padding(8.dp)
                     )
                 }
-                Spacer(
+                Spacer(modifier = Modifier.padding(8.dp))
+
+                OutlinedButton(
+                    onClick = { expanded = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(text = modifieCategorieTransaction.name)
+                }
+
+                // Menu déroulant
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    menuItems.forEach { category ->
+                        DropdownMenuItem(
+                            text = { Text(text = category.name) },
+                            onClick = {
+                                modifieCategorieTransaction = category
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+
+                TextField(
+                    value = modifieDetailsSupplementaires,
+                    onValueChange = { modifieDetailsSupplementaires = it },
+                    label = { Text("Détails Supplémentaires") },
                     modifier = Modifier
+                        .weight(1f)
+                        .border(1.dp, Gray)
                         .padding(8.dp)
                 )
+
+                Spacer(modifier = Modifier.padding(8.dp))
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Button(
                         onClick = {
                             if (modifieMontant.isNotBlank()) {
                                 viewModel.modifieTransaction(
-                                    idTache = transaction.idTransaction,
-                                    selectedOption,
-                                    modifieMontant,
-                                    modifieCategorieTransaction.name,
-                                    modifieDetailsSupplementaires
+                                    idTransaction = transaction.idTransaction,
+                                    selectedOption = selectedOption,
+                                    montant = modifieMontant,
+                                    categorieTransaction = modifieCategorieTransaction.name,
+                                    detailsSupplementaires = modifieDetailsSupplementaires
                                 )
-                                selectedOption = radioOptions[0]
-                                modifieMontant = ""
-                                modifieCategorieTransaction.name
-                                modifieDetailsSupplementaires = ""
-
+                                navController.navigate("ecran_transactions")
                             }
-                            navController.navigate("ecran_transactions")
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -193,10 +183,9 @@ fun EcranDetails(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-
                     IconButton(onClick = {
                         viewModel.supprimeTransaction(idTransaction = transaction.idTransaction)
-                        navController.navigate("ecran_transaction")
+                        navController.navigate("ecran_transactions")
                     }) {
                         Icon(Icons.Default.Delete, contentDescription = "Supprimer")
                     }

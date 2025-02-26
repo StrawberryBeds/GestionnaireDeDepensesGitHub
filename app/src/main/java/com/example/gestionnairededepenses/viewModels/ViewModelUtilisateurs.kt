@@ -23,8 +23,8 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
 
     // Les données des utilisateurs dans la ficher - privée, invisible aux Views
     private val _utilisateur = Utilisateur(
-        nomEtPrenom = sharedPreferences.getString("NOM_ET_PRENOM", "Euro Riche")
-            ?: "Euro Riche",
+        nomEtPrenom = sharedPreferences.getString("NOM_ET_PRENOM", "Penny Counter")
+            ?: "Penny Counter",
         nomUtilisateur = sharedPreferences.getString("NOM_UTILISATEUR", "user@example.com")
             ?: "user@example.com",
         motDePasse = sharedPreferences.getString("MOT_DE_PASSE", "password123") ?: "password123",
@@ -167,14 +167,23 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
         Log.i("System.out", "VMU: sauvegraderTransaction ${utilisateur.nomUtilisateur}, ${jsonString}")
     }
     fun supprimeTransaction(idTransaction: String) {
-        _transactions.value = _transactions.value.filter { it.idTransaction != idTransaction }
+        // Filtrer la liste actuelle pour exclure la transaction avec l'ID spécifié
+        val transactionsMisesAJour =
+            _transactions.value.filter { it.idTransaction != idTransaction }
+        Log.i("System.out", "VMU: suprimmeTXN ${idTransaction}")
+
+        // Mettre à jour la valeur de _transactions avec la nouvelle liste
+        _transactions.value = transactionsMisesAJour
+        Log.i("System.out", "VMU: suprimmeTXN TXNS mise a jour")
+
+        // Sauvegarder les transactions mises à jour
         sauvegarderTransaction(nomUtilisateur = utilisateur.nomUtilisateur)
     }
 
     fun modifieTransaction(
         idTransaction: String,
         selectedOption: String? = null,
-        montant: Double? = null,
+        montant: String? = null,
         categorieTransaction: String? = null,
         detailsSupplementaires: String? = null
     ) {
@@ -188,16 +197,17 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
             // Mettre à jour la transaction avec les nouvelles valeurs
             val transactionModifiee = transactionsActuelles[index].copy(
                 selectedOption = selectedOption ?: transactionsActuelles[index].selectedOption,
-                montant = montant ?: transactionsActuelles[index].montant,
+                montant = (montant ?: transactionsActuelles[index].montant) as Double,
                 categorieTransaction = categorieTransaction ?: transactionsActuelles[index].categorieTransaction,
                 detailsSupplementaires = detailsSupplementaires ?: transactionsActuelles[index].detailsSupplementaires
             )
 
             // Remplacer l'ancienne transaction par la nouvelle
             transactionsActuelles[index] = transactionModifiee
-
+            Log.i("System.out", "VMU: modifieTXN ${idTransaction}")
             // Mettre à jour la valeur de _transactions
             _transactions.value = transactionsActuelles
+            Log.i("System.out", "VMU: TXNs mettre a jour")
 
             // Sauvegarder les transactions mises à jour
             sauvegarderTransaction(nomUtilisateur = utilisateur.nomUtilisateur)
@@ -205,47 +215,3 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
     }
 }
 
-
-
-
-//    // Ficher des transactions d'un utilisateur invisible aux Views
-//    private val userPreferences: SharedPreferences = context.getSharedPreferences(
-//        "UserPrefs ${utilisateur.nomUtilisateur}",
-//        MODE_PRIVATE
-//    )
-
-
-
-
-
-
-
-//    fun apporteNomFichierUtilisateur(nomUtilisateur: String): String {
-//        var nomFichier = "Transactions_${nomUtilisateur}"
-//        return nomFichier
-//    }
-
-//    fun ajouteUtilisateur(nomUtilisateur: String, motDePasse: String) {
-//
-//        val nouvelleUtilisateur = Utilisateur(
-//            nomEtPrenom = nomUtilisateur,
-//            nomUtilisateur = nomUtilisateur,
-//            motDePasse = motDePasse,
-//            estVerifie = false
-//        )
-//        _utilisateurs.add(nouvelleUtilisateur)
-//        sauvegarderUtilisateur()
-//    }
-//
-//    fun sauvegarderUtilisateur() {
-//        val jsonString = gson.toJson(_utilisateurs)
-//        sharedPreferences.edit().putString("PREF_KEY_UTILISATEURS", jsonString).apply()
-//    }
-//
-//    private fun apporteUtilisateurs() {
-//        val jsonString = sharedPreferences.getString("PREF_KEY_UTILISATEURS", null) ?: return
-//        val listType = object : TypeToken<List<Utilisateur>>() {}.type
-//        val utilisateursSauves: List<Utilisateur> = gson.fromJson(jsonString, listType)
-//        _utilisateurs.clear()
-//        _utilisateurs.addAll(utilisateursSauves)
-//    }

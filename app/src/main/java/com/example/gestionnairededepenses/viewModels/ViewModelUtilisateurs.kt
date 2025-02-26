@@ -74,8 +74,9 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
         // Changer le statut d'utilisateur verifié dans les données
         sharedPreferences.edit().putBoolean("UTILISATEUR_VERIFIE", estVerifie).apply()
         // Retour pour amener l'utiliasteur à l'Accueil
-        Log.i("System.out", "VMU: Utilisateur: $estVerifie")
+        Log.i("System.out", "VMU: verifierUtilisateur: $estVerifie")
         return estVerifie
+        chargerTransactions(nomUtilisateur)
     }
 
     // Deconnecter le utilisateur ...
@@ -85,7 +86,7 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
         sharedPreferences.edit().putBoolean("UTILISATEUR_VERIFIE", false).apply()
         // Retour pour amener l'utilisateur au SeConnecter
         utilisateur.estVerifie = false
-        Log.i("System.out", "VMU: Utilisateur: ${utilisateur.estVerifie}")
+        Log.i("System.out", "VMU: deconnecterUtilisateur: ${utilisateur.estVerifie}")
     }
 
 // *** GESTION DES TRANSACTIONS
@@ -95,7 +96,7 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
         "UserPrefs ${utilisateur.nomUtilisateur}",
         MODE_PRIVATE
     )
-    // Permettre la gestion de la iste des utilisateurs - privée, invisible aux Views
+    // Permettre la gestion de la liste des utilisateurs - privée, invisible aux Views
     private val _transactions = MutableStateFlow<List<Transaction>>(emptyList())
     // Details d'un utilisateur  - visible aux Views au besoin
     val transactions: StateFlow<List<Transaction>> = _transactions.asStateFlow()
@@ -105,14 +106,14 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
         if (utilisateur.estVerifie) {
             chargerTransactions(utilisateur.nomUtilisateur)
         } else {
-
+// Something here
         }
     }
 
     // Charger la liste des utilisateurs du fichier et le convertir de json à List
     // - privée, inaccessible aux Views
     private fun chargerTransactions(nomUtilisateur: String) {
-        val nomUtilisateur = utilisateur.nomUtilisateur
+        val userPreferences = application.getSharedPreferences("UserPrefs $nomUtilisateur", MODE_PRIVATE)
         val jsonString = userPreferences.getString(
             "PREF_KEY_TRANSACTIONS",
             null
@@ -127,13 +128,13 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
             Log.e("System.err", "VMU: Erreur lors du chargement des transactions", e)
             // Vous pouvez également réinitialiser _transactions.value à une liste vide en cas d'erreur
             _transactions.value = emptyList()
-            Log.i("System.out", "VMU: JSON chargé: $jsonString")
+            Log.i("System.out", "VMU: chargerTransactions: $jsonString")
 
         }
     }
     // Ajoute d'une nouvelle Transaction - donne un UUID et appeller fun sauvegarderTransaction pour le stocker.
     fun ajouterTransaction(selectedOption: String, montant: Double, categorieTransaction: String) {
-
+        val nomUtilisateur = utilisateur.nomUtilisateur
         val nouvelleTransaction = Transaction(
             idTransaction = UUID.randomUUID().toString(),
             selectedOption = selectedOption,
@@ -142,7 +143,7 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
 
         _transactions.value = _transactions.value + nouvelleTransaction
         sauvegarderTransaction(nomUtilisateur = utilisateur.nomUtilisateur)
-        Log.i("System.out", "VMU: TxnAjouté ${utilisateur.nomUtilisateur}, ${nouvelleTransaction}")
+        Log.i("System.out", "VMU: ajouterTransaction ${utilisateur.nomUtilisateur}, ${nouvelleTransaction}")
     }
 
     // Sauvegarder le nouvelleTransaction en fichier dediée au utilisateur
@@ -159,7 +160,7 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
         editor.putString("PREF_KEY_TRANSACTIONS", jsonString)
         editor.apply()
         Log.i("System.out", "VMU: JSON sauvegardé: $jsonString")
-        Log.i("System.out", "VMU: TxnSauvé ${utilisateur.nomUtilisateur}, ${jsonString}")
+        Log.i("System.out", "VMU: sauvegraderTransaction ${utilisateur.nomUtilisateur}, ${jsonString}")
     }
 }
 

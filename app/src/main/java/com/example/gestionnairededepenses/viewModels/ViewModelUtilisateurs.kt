@@ -166,6 +166,43 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
         Log.i("System.out", "VMU: JSON sauvegardé: $jsonString")
         Log.i("System.out", "VMU: sauvegraderTransaction ${utilisateur.nomUtilisateur}, ${jsonString}")
     }
+    fun supprimeTransaction(idTransaction: String) {
+        _transactions.value = _transactions.value.filter { it.idTransaction != idTransaction }
+        sauvegarderTransaction(nomUtilisateur = utilisateur.nomUtilisateur)
+    }
+
+    fun modifieTransaction(
+        idTransaction: String,
+        selectedOption: String? = null,
+        montant: Double? = null,
+        categorieTransaction: String? = null,
+        detailsSupplementaires: String? = null
+    ) {
+        // Récupérer la liste actuelle des transactions
+        val transactionsActuelles = _transactions.value.toMutableList()
+
+        // Trouver l'index de la transaction à modifier
+        val index = transactionsActuelles.indexOfFirst { it.idTransaction == idTransaction }
+
+        if (index != -1) {
+            // Mettre à jour la transaction avec les nouvelles valeurs
+            val transactionModifiee = transactionsActuelles[index].copy(
+                selectedOption = selectedOption ?: transactionsActuelles[index].selectedOption,
+                montant = montant ?: transactionsActuelles[index].montant,
+                categorieTransaction = categorieTransaction ?: transactionsActuelles[index].categorieTransaction,
+                detailsSupplementaires = detailsSupplementaires ?: transactionsActuelles[index].detailsSupplementaires
+            )
+
+            // Remplacer l'ancienne transaction par la nouvelle
+            transactionsActuelles[index] = transactionModifiee
+
+            // Mettre à jour la valeur de _transactions
+            _transactions.value = transactionsActuelles
+
+            // Sauvegarder les transactions mises à jour
+            sauvegarderTransaction(nomUtilisateur = utilisateur.nomUtilisateur)
+        }
+    }
 }
 
 

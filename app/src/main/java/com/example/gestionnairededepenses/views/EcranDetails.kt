@@ -51,18 +51,19 @@ fun EcranDetails(
     val transaction = transactions.find { it.idTransaction == idTransaction }
 
     transaction?.let {
-        var modifieMontant by remember { mutableStateOf(it.montant.toString()) }
-        var modifieDetailsSupplementaires by remember { mutableStateOf(it.detailsSupplementaires) }
-        var modifieCategorieTransaction by remember { mutableStateOf(Categories.valueOf(it.categorieTransaction)) }
+        val radioOptions = listOf("Revenu", "Dépense")
         var selectedOption by remember { mutableStateOf(it.selectedOption) }
 
-        val radioOptions = listOf("Revenu", "Dépense")
+        var modifieMontant by remember { mutableStateOf(it.montant.toString()) }
         var text by remember { mutableStateOf(modifieMontant) }
         var doubleValue by remember { mutableStateOf<Double?>(null) }
         var error by remember { mutableStateOf(false) }
 
+        var modifieCategorieTransaction by remember { mutableStateOf(Categories.valueOf(it.categorieTransaction)) }
         var expanded by remember { mutableStateOf(false) }
         val menuItems = Categories.values().toList()
+
+        var modifieDetailsSupplementaires by remember { mutableStateOf(it.detailsSupplementaires) }
 
         Scaffold() { paddingValues ->
             Column(
@@ -159,13 +160,14 @@ fun EcranDetails(
                     Button(
                         onClick = {
                             if (text.isNotEmpty()) {
-                                val montantDouble = text.toDoubleOrNull()
+                                val montantDouble = text.toDoubleOrNull() // change
                                 if (montantDouble != null) {
-                                    viewModel.ajouterTransaction(
+                                    viewModel.modifieTransaction(
+                                        idTransaction = transaction.idTransaction,
                                         selectedOption,
                                         montantDouble,
                                         modifieCategorieTransaction.name,
-                                        modifieDetailsSupplementaires
+                                        detailsSupplementaires = modifieDetailsSupplementaires
                                     )
                                     selectedOption = radioOptions[0]
                                     modifieMontant = ""

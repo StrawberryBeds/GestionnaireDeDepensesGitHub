@@ -48,12 +48,11 @@ import com.example.gestionnairededepenses.viewModels.ViewModelUtilisateur
 fun EcranTransactions(viewModel: ViewModelUtilisateur, navController: NavHostController) {
 
     val transactions by viewModel.transactions.collectAsState()
-    var nouvelleMontant by remember { mutableStateOf("") }
-    var detailsSupplementaires by remember { mutableStateOf("") }
 
     val radioOptions = listOf("Revenu", "Dépense")
     var (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
 
+    var nouvelleMontant by remember { mutableStateOf("") }
     var text by remember { mutableStateOf("") }
     var doubleValue by remember { mutableStateOf<Double?>(null) }
     var error by remember { mutableStateOf(false) }
@@ -61,6 +60,9 @@ fun EcranTransactions(viewModel: ViewModelUtilisateur, navController: NavHostCon
     var expanded by remember { mutableStateOf(false) }
     var nouvelleCategorieTransaction by remember { mutableStateOf(Categories.SALAIRE) }
     val menuItems = Categories.values().toList()
+
+    var detailsSupplementaires by remember { mutableStateOf("") }
+
 
     Scaffold() { paddingValues ->
         Column(
@@ -111,7 +113,7 @@ fun EcranTransactions(viewModel: ViewModelUtilisateur, navController: NavHostCon
                         error = doubleValue == null && nouvelleMontant.isNotEmpty()
 
                     },
-                    label = { Text("100.00") },
+                    label = { Text("0.00") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     isError = error,
                     modifier = Modifier

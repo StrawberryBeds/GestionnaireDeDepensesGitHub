@@ -182,10 +182,10 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
 
     fun modifieTransaction(
         idTransaction: String,
-        selectedOption: String? = null,
-        montant: String,
-        categorieTransaction: String? = null,
-        detailsSupplementaires: String? = null
+        selectedOption: String,
+        montant: Double,
+        categorieTransaction: String,
+        detailsSupplementaires: String
     ) {
         // Récupérer la liste actuelle des transactions
         val transactionsActuelles = _transactions.value.toMutableList()

@@ -40,12 +40,11 @@ import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.example.gestionnairededepenses.classes.Categories
 import com.example.gestionnairededepenses.viewModels.ViewModelUtilisateur
 
 @Composable
-fun EcranTransactions(viewModel: ViewModelUtilisateur, navController: NavHostController) {
+fun EcranTransactions(viewModel: ViewModelUtilisateur, onNavigateToDetails: (String) -> Unit) {
 
     val transactions by viewModel.transactions.collectAsState()
 
@@ -215,7 +214,9 @@ fun EcranTransactions(viewModel: ViewModelUtilisateur, navController: NavHostCon
                         } else {
                             Color.Red
                         }
-                        IconButton(onClick = { navController.navigate("ecran_details/${transaction.idTransaction}") }) {
+                        IconButton(onClick = {
+                            val idTransction = "${transaction.idTransaction}"
+                            onNavigateToDetails(idTransction) }) {
                             Icon(Icons.Default.Edit, contentDescription = "Modifier")
                         }
                         Text(

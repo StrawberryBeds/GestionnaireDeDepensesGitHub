@@ -67,19 +67,61 @@ fun GestionnaireDeDepenses(
         startDestination = "se_connecter"
     ) {
         composable("se_connecter") { SeConnecter(viewModelUtilisateur, navController) }
-        composable("accueil") { Accueil(viewModelUtilisateur, navController) }
-        composable("ecran_transactions") { EcranTransactions(viewModelUtilisateur, navController) }
+        composable("accueil") {
+            Accueil(
+                viewModelUtilisateur,
+                onNavigateToTransactions = {
+                    navController.navigate("ecran_transactions") {
+                        popUpTo("accueil") {
+                            inclusive = false
+                            saveState = false
+                        }
+                        restoreState = false
+                    }
+                }
+            )
+        }
+
+        composable("ecran_transactions") {
+            EcranTransactions(
+                viewModelUtilisateur,
+                onNavigateToDetails = { idTransaction ->
+                    navController.navigate("ecran_details/$idTransaction") {
+                        popUpTo("accueil") {
+                            inclusive = false
+                            saveState = false
+                        }
+                        restoreState = false
+                    }
+                }
+            )
+        }
+
         composable(
             "ecran_details/{idTransaction}",
             arguments = listOf(navArgument("idTransaction") { type = NavType.StringType })
         ) { backStackEntry ->
             val idTransaction = backStackEntry.arguments?.getString("idTransaction")
             idTransaction?.let {
-                EcranDetails(viewModelUtilisateur, navController, idTransaction = it)
+                EcranDetails(
+                    viewModelUtilisateur,
+                    navController,
+                    idTransaction = it,
+                    onBackToTransactions = {
+                        navController.navigate("ecran_transactions") {
+                            popUpTo("ecran_transactions") {
+                                inclusive = true
+                                saveState = true
+                            }
+                            restoreState = true
+                        }
+                    }
+                )
             }
         }
     }
 }
+
 
 //        composable(
 //            "details/{idTransaction}",

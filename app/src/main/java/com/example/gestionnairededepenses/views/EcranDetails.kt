@@ -45,7 +45,8 @@ import com.example.gestionnairededepenses.viewModels.ViewModelUtilisateur
 fun EcranDetails(
     viewModel: ViewModelUtilisateur,
     navController: NavHostController,
-    idTransaction: String
+    idTransaction: String,
+    onBackToTransactions: () -> Unit
 ) {
     val transactions by viewModel.transactions.collectAsState()
     val transaction = transactions.find { it.idTransaction == idTransaction }
@@ -173,7 +174,7 @@ fun EcranDetails(
                                     modifieMontant = ""
                                     modifieCategorieTransaction.name
                                     modifieDetailsSupplementaires = ""
-                                    navController.navigate("ecran_transactions")
+                                    onBackToTransactions()
                                 }
                             }
                         },
@@ -192,7 +193,7 @@ fun EcranDetails(
                 ) {
                     IconButton(onClick = {
                         viewModel.supprimeTransaction(idTransaction = transaction.idTransaction)
-                        navController.navigate("ecran_transactions")
+                        onBackToTransactions()
                     }) {
                         Icon(Icons.Default.Delete, contentDescription = "Supprimer")
                     }
@@ -201,7 +202,7 @@ fun EcranDetails(
                 Spacer(modifier = Modifier.padding(8.dp))
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Button(
-                        onClick = { navController.popBackStack() },
+                        onClick = { onBackToTransactions() },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Liste des Transactions")

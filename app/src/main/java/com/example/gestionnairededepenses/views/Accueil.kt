@@ -18,12 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
+import androidx.navigation.navArgument
 import com.example.gestionnairededepenses.viewModels.ViewModelUtilisateur
 
 @Composable
 fun Accueil(
-    viewModelUtilisateur: ViewModelUtilisateur, navController: NavHostController
+    viewModelUtilisateur: ViewModelUtilisateur,  onNavigateToTransactions: () -> Unit
 ) {
 
     val utilisateur = viewModelUtilisateur.utilisateur
@@ -47,7 +47,7 @@ fun Accueil(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Button(
-                    onClick = { navController.navigate("ecran_transactions") },
+                    onClick = { onNavigateToTransactions () },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 8.dp)
@@ -65,7 +65,10 @@ fun Accueil(
                 Button(
                     onClick = {
                         viewModelUtilisateur.deconnecterUtilisateur(nomUtilisateur = utilisateur.nomUtilisateur)
-                        navController.navigate("se_connecter")
+                        navArgument(
+                            "se_connecter",
+                            builder = TODO()
+                        )
                     },
                     modifier = Modifier
                         .fillMaxWidth()

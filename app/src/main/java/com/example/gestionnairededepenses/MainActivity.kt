@@ -29,6 +29,12 @@ import com.example.gestionnairededepenses.views.SeConnecter
 
 class MainActivity : ComponentActivity() {
 
+    // Lien au GitHub : https://github.com/StrawberryBeds/GestionnaireDeDepensesGitHub
+
+    // Version remise : 1e5a05d8141be25fb53ab63f11f3e9b64582a269
+
+    // Lien au version remise : https://github.com/StrawberryBeds/GestionnaireDeDepensesGitHub/commit/1e5a05d8141be25fb53ab63f11f3e9b64582a269
+
     private val viewModelUtilisateur: ViewModelUtilisateur by viewModels()
     private val viewModelTransactions: ViewModelTransactions by viewModels()
 

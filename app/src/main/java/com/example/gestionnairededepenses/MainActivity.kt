@@ -19,6 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.gestionnairededepenses.ui.theme.GestionnaireDeDepensesTheme
+import com.example.gestionnairededepenses.viewModels.ViewModelTransactions
 import com.example.gestionnairededepenses.viewModels.ViewModelUtilisateur
 import com.example.gestionnairededepenses.views.Accueil
 import com.example.gestionnairededepenses.views.EcranDetails
@@ -29,6 +30,8 @@ import com.example.gestionnairededepenses.views.SeConnecter
 class MainActivity : ComponentActivity() {
 
     private val viewModelUtilisateur: ViewModelUtilisateur by viewModels()
+    private val viewModelTransactions: ViewModelTransactions by viewModels()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +42,7 @@ class MainActivity : ComponentActivity() {
                     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                         GestionnaireDeDepenses(
                             viewModelUtilisateur,
+                            viewModelTransactions,
                             navController = rememberNavController()
                         )
                     }
@@ -51,6 +55,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun GestionnaireDeDepenses(
     viewModelUtilisateur: ViewModelUtilisateur,
+    viewModelTransactions: ViewModelTransactions,
     navController: NavHostController,
 ) {
     Log.i("System.out", "Lance de Composable MainActivity")
@@ -84,7 +89,8 @@ fun GestionnaireDeDepenses(
 
         composable("ecran_transactions") {
             EcranTransactions(
-                viewModelUtilisateur,
+//                viewModelUtilisateur,
+                viewModelTransactions,
                 onNavigateToDetails = { idTransaction ->
                     navController.navigate("ecran_details/$idTransaction") {
                         popUpTo("accueil") {
@@ -104,9 +110,9 @@ fun GestionnaireDeDepenses(
             val idTransaction = backStackEntry.arguments?.getString("idTransaction")
             idTransaction?.let {
                 EcranDetails(
-                    viewModelUtilisateur,
-                    navController,
-                    idTransaction = it,
+//                    viewModelUtilisateur,
+                    viewModelTransactions,
+                    idTransaction,
                     onBackToTransactions = {
                         navController.navigate("ecran_transactions") {
                             popUpTo("ecran_transactions") {
@@ -115,23 +121,9 @@ fun GestionnaireDeDepenses(
                             }
                             restoreState = true
                         }
-                    }
+                    },
                 )
             }
         }
     }
 }
-
-
-//        composable(
-//            "details/{idTransaction}",
-//            arguments = listOf(navArgument("idTransaction") { type = NavType.StringType })
-//        ) { backStackEntry ->
-//            val idTransaction = backStackEntry.arguments?.getString("idTransaction")
-//            idTransaction?.let {
-//                EcranDetails(navController = navController, idTransaction = it)
-//            }
-//        }
-//    }
-//    }
-//}

@@ -1,5 +1,6 @@
 package com.example.gestionnairededepenses.views
 
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,13 +13,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
@@ -34,21 +32,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Gray
+import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.example.gestionnairededepenses.classes.Categories
-import com.example.gestionnairededepenses.viewModels.ViewModelUtilisateur
+import com.example.gestionnairededepenses.viewModels.ViewModelTransactions
 
 @Composable
 fun EcranDetails(
-    viewModel: ViewModelUtilisateur,
-    navController: NavHostController,
+//    viewModelUtilisateur: ViewModelUtilisateur,
+    viewModelTransactions: ViewModelTransactions,
     idTransaction: String,
-    onBackToTransactions: () -> Unit
-) {
-    val transactions by viewModel.transactions.collectAsState()
+    onBackToTransactions: () -> Unit ) {
+
+    var nomUtilisateur = viewModelTransactions.nomUtilisateur
+//    var idTransaction = viewModelTransactions.idTransaction()
+
+    val transactions by viewModelTransactions.chargerTXNUtilisateur(nomUtilisateur.toString())
+        .collectAsState()
     val transaction = transactions.find { it.idTransaction == idTransaction }
 
     transaction?.let {
@@ -163,17 +166,14 @@ fun EcranDetails(
                             if (text.isNotEmpty()) {
                                 val montantDouble = text.toDoubleOrNull() // change
                                 if (montantDouble != null) {
-                                    viewModel.modifieTransaction(
-                                        idTransaction = transaction.idTransaction,
+                                    viewModelTransactions.modifieTransaction(
+                                        nomUtilisateur.toString(),
+                                        idTransaction,
                                         selectedOption,
                                         montantDouble,
                                         modifieCategorieTransaction.name,
-                                        detailsSupplementaires = modifieDetailsSupplementaires
+                                        modifieDetailsSupplementaires
                                     )
-                                    selectedOption = radioOptions[0]
-                                    modifieMontant = ""
-                                    modifieCategorieTransaction.name
-                                    modifieDetailsSupplementaires = ""
                                     onBackToTransactions()
                                 }
                             }
@@ -191,13 +191,28 @@ fun EcranDetails(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    IconButton(onClick = {
-                        viewModel.supprimeTransaction(idTransaction = transaction.idTransaction)
-                        onBackToTransactions()
-                    }) {
-                        Icon(Icons.Default.Delete, contentDescription = "Supprimer")
+                    Button(
+                        onClick = {
+                            viewModelTransactions.supprimeTXNUtilisateur(
+                                nomUtilisateur.toString(),
+                                transaction.idTransaction
+                            )
+                            onBackToTransactions()
+                        }, modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 8.dp),
+                        colors = ButtonColors(
+                            containerColor = Red,
+                            contentColor = White,
+                            disabledContainerColor = Red,
+                            disabledContentColor = White
+                        )
+                    ) {
+                        Text("Supprimmer")
                     }
                 }
+                Log.i("System.out", "ED: TXN delete request ${transaction.idTransaction}")
+
 
                 Spacer(modifier = Modifier.padding(8.dp))
                 Row(modifier = Modifier.fillMaxWidth()) {
@@ -212,4 +227,5 @@ fun EcranDetails(
         }
     }
 }
+
 

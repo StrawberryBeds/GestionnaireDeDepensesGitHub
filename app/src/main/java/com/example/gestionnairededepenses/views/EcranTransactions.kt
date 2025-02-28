@@ -41,12 +41,16 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.gestionnairededepenses.classes.Categories
-import com.example.gestionnairededepenses.viewModels.ViewModelUtilisateur
+import com.example.gestionnairededepenses.viewModels.ViewModelTransactions
 
 @Composable
-fun EcranTransactions(viewModel: ViewModelUtilisateur, onNavigateToDetails: (String) -> Unit) {
+fun EcranTransactions(
+//    viewModelUtilisateur: ViewModelUtilisateur,
+    viewModelTransactions: ViewModelTransactions,
+    onNavigateToDetails: (String) -> Unit) {
 
-    val transactions by viewModel.transactions.collectAsState()
+    var nomUtilisateur = viewModelTransactions.nomUtilisateur
+    val transactions by viewModelTransactions.chargerTXNUtilisateur(nomUtilisateur.toString()).collectAsState()
 
     val radioOptions = listOf("Revenu", "Dépense")
     var (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
@@ -60,7 +64,9 @@ fun EcranTransactions(viewModel: ViewModelUtilisateur, onNavigateToDetails: (Str
     var nouvelleCategorieTransaction by remember { mutableStateOf(Categories.SALAIRE) }
     val menuItems = Categories.values().toList()
 
-    var detailsSupplementaires by remember { mutableStateOf("") }
+    var nouvelleDetailsSupplementaires by remember { mutableStateOf("") }
+
+//    var detailsSupplementaires by remember { mutableStateOf("") }
 
 
     Scaffold() { paddingValues ->
@@ -161,8 +167,8 @@ fun EcranTransactions(viewModel: ViewModelUtilisateur, onNavigateToDetails: (Str
                     .fillMaxWidth()
             ) {
                 TextField(
-                    value = detailsSupplementaires,
-                    onValueChange = { detailsSupplementaires = it },
+                    value = nouvelleDetailsSupplementaires,
+                    onValueChange = { nouvelleDetailsSupplementaires = it },
                     label = { Text("Détails Supplementaires") },
                     modifier = Modifier
                         .weight(1f)
@@ -182,16 +188,16 @@ fun EcranTransactions(viewModel: ViewModelUtilisateur, onNavigateToDetails: (Str
                         if (text.isNotEmpty()) {
                             val montantDouble = text.toDoubleOrNull()
                             if (montantDouble != null) {
-                                viewModel.ajouterTransaction(
-                                    selectedOption,
-                                    montantDouble,
-                                    nouvelleCategorieTransaction.name,
-                                    detailsSupplementaires
-                                )
+                                viewModelTransactions.ajouteTXNUtilisateur(nomUtilisateur = nomUtilisateur.toString(),
+                                        selectedOption,
+                                        montantDouble,
+                                        nouvelleCategorieTransaction.name,
+                                        nouvelleDetailsSupplementaires,
+                                    )
                                 selectedOption = radioOptions[0]
                                 nouvelleMontant = ""
                                 nouvelleCategorieTransaction.name
-                                detailsSupplementaires = ""
+                                nouvelleDetailsSupplementaires = ""
                             }
                         }
                     },
@@ -215,7 +221,7 @@ fun EcranTransactions(viewModel: ViewModelUtilisateur, onNavigateToDetails: (Str
                             Color.Red
                         }
                         IconButton(onClick = {
-                            val idTransction = "${transaction.idTransaction}"
+                            val idTransction = transaction.idTransaction
                             onNavigateToDetails(idTransction) }) {
                             Icon(Icons.Default.Edit, contentDescription = "Modifier")
                         }
@@ -225,16 +231,10 @@ fun EcranTransactions(viewModel: ViewModelUtilisateur, onNavigateToDetails: (Str
                             modifier = Modifier.weight(1f)
                         )
                         Text(
-                            "${transaction.categorieTransaction}",
+                            transaction.categorieTransaction,
                             color = textCouleur,
                             modifier = Modifier.weight(1f)
                         )
-
-//                        IconButton(onClick = {
-                        //    viewModel.supprimeTransaction(idTransaction = transaction.idTransaction)
-//                        } ) {
-//                            Icon(Icons.Default.Delete, contentDescription = "Supprimer")
-//                        }
                     }
                 }
             }

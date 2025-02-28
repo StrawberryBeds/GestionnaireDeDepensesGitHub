@@ -2,19 +2,12 @@ package com.example.gestionnairededepenses.viewModels
 
 import android.app.Application
 import android.content.Context.MODE_PRIVATE
-import android.content.SharedPreferences
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.application
-import com.example.gestionnairededepenses.classes.Transaction
 import com.example.gestionnairededepenses.classes.Utilisateur
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import java.util.UUID
 
 class ViewModelUtilisateur (application: Application) : AndroidViewModel(application) {
 
@@ -37,6 +30,7 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
 
     // Details d'un utilisateur  - visible aux Views au besoin
     val utilisateur: Utilisateur get() = _utilisateur
+
 
     // Truc Gson qui transform les données en JSON
     private val gson = Gson()
@@ -76,7 +70,6 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
         // Retour pour amener l'utiliasteur à l'Accueil
         Log.i("System.out", "VMU: verifierUtilisateur: $estVerifie")
         return estVerifie
-        chargerTransactions(nomUtilisateur)
     }
 
     // Deconnecter le utilisateur ...
@@ -89,129 +82,5 @@ class ViewModelUtilisateur (application: Application) : AndroidViewModel(applica
         Log.i("System.out", "VMU: deconnecterUtilisateur: ${utilisateur.estVerifie}")
     }
 
-// *** GESTION DES TRANSACTIONS
-
-    // Ficher des transactions d'un utilisateur invisible aux Views
-    private val userPreferences: SharedPreferences = application.getSharedPreferences(
-        "UserPrefs ${utilisateur.nomUtilisateur}",
-        MODE_PRIVATE
-    )
-    // Permettre la gestion de la liste des utilisateurs - privée, invisible aux Views
-    private val _transactions = MutableStateFlow<List<Transaction>>(emptyList())
-    // Details d'un utilisateur  - visible aux Views au besoin
-    val transactions: StateFlow<List<Transaction>> = _transactions.asStateFlow()
-
-    // Initialise les utilisateurs par le fonction chargerUtilisateurs
-    init {
-        if (utilisateur.estVerifie) {
-            chargerTransactions(utilisateur.nomUtilisateur)
-        } else {
-// Something here
-        }
-    }
-
-    // Charger la liste des utilisateurs du fichier et le convertir de json à List
-    // - privée, inaccessible aux Views
-    private fun chargerTransactions(nomUtilisateur: String) {
-        val userPreferences = application.getSharedPreferences("UserPrefs $nomUtilisateur", MODE_PRIVATE)
-        val jsonString = userPreferences.getString(
-            "PREF_KEY_TRANSACTIONS",
-            null
-        ) ?: return
-        val listType = object : TypeToken<List<Transaction>>() {}.type
-        try { // Try ... catch suggére par Mistral pour eviter l'ecrasement en raison d'erreur JSON
-            val transactionsList: List<Transaction> = gson.fromJson(jsonString, listType)
-            _transactions.value = transactionsList // Ajoute value suggèré par Mistal
-            Log.i("System.out", "VMU: Transactions chargées: $transactionsList")
-        } catch (e: Exception) {
-            Log.i("System.out", "VMU: Erreur lors du chargement des transactions", e)
-            Log.e("System.err", "VMU: Erreur lors du chargement des transactions", e)
-            // Vous pouvez également réinitialiser _transactions.value à une liste vide en cas d'erreur
-            _transactions.value = emptyList()
-            Log.i("System.out", "VMU: chargerTransactions: $jsonString")
-
-        }
-    }
-    // Ajoute d'une nouvelle Transaction - donne un UUID et appeller fun sauvegarderTransaction pour le stocker.
-    fun ajouterTransaction(selectedOption: String,
-                           montant: Double,
-                           categorieTransaction: String,
-                           detailsSupplenentaires: String) {
-        val nomUtilisateur = utilisateur.nomUtilisateur
-        val nouvelleTransaction = Transaction(
-            idTransaction = UUID.randomUUID().toString(),
-            selectedOption = selectedOption,
-            montant = montant,
-            categorieTransaction = categorieTransaction,
-            detailsSupplementaires = detailsSupplenentaires)
-
-        _transactions.value = _transactions.value + nouvelleTransaction
-        sauvegarderTransaction(nomUtilisateur = utilisateur.nomUtilisateur)
-        Log.i("System.out", "VMU: ajouterTransaction ${utilisateur.nomUtilisateur}, ${nouvelleTransaction}")
-    }
-
-    // Sauvegarder le nouvelleTransaction en fichier dediée au utilisateur
-    fun sauvegarderTransaction(nomUtilisateur: String) {
-        // val nomFichier = AppOutils.apporteNomFichierUtilisateur(nomUtilisateur)
-        val userPreferences: SharedPreferences = application.getSharedPreferences(
-            "UserPrefs ${utilisateur.nomUtilisateur}",
-            MODE_PRIVATE
-        )
-        val jsonString = gson.toJson(_transactions.value)
-        val editor =
-            userPreferences.edit()
-        Log.i("System.out", "VMU: JSON à sauvegarder: $jsonString")
-        editor.putString("PREF_KEY_TRANSACTIONS", jsonString)
-        editor.apply()
-        Log.i("System.out", "VMU: JSON sauvegardé: $jsonString")
-        Log.i("System.out", "VMU: sauvegraderTransaction ${utilisateur.nomUtilisateur}, ${jsonString}")
-    }
-    fun supprimeTransaction(idTransaction: String) {
-        // Filtrer la liste actuelle pour exclure la transaction avec l'ID spécifié
-        val transactionsMisesAJour =
-            _transactions.value.filter { it.idTransaction != idTransaction }
-        Log.i("System.out", "VMU: suprimmeTXN ${idTransaction}")
-
-        // Mettre à jour la valeur de _transactions avec la nouvelle liste
-        _transactions.value = transactionsMisesAJour
-        Log.i("System.out", "VMU: suprimmeTXN TXNS mise a jour")
-
-        // Sauvegarder les transactions mises à jour
-        sauvegarderTransaction(nomUtilisateur = utilisateur.nomUtilisateur)
-    }
-
-    fun modifieTransaction(
-        idTransaction: String,
-        selectedOption: String,
-        montant: Double,
-        categorieTransaction: String,
-        detailsSupplementaires: String
-    ) {
-        // Récupérer la liste actuelle des transactions
-        val transactionsActuelles = _transactions.value.toMutableList()
-
-        // Trouver l'index de la transaction à modifier
-        val index = transactionsActuelles.indexOfFirst { it.idTransaction == idTransaction }
-
-        if (index != -1) {
-            // Mettre à jour la transaction avec les nouvelles valeurs
-            val transactionModifiee = transactionsActuelles[index].copy(
-                selectedOption = selectedOption ?: transactionsActuelles[index].selectedOption,
-                montant = (montant ?: transactionsActuelles[index].montant) as Double,
-                categorieTransaction = categorieTransaction ?: transactionsActuelles[index].categorieTransaction,
-                detailsSupplementaires = detailsSupplementaires ?: transactionsActuelles[index].detailsSupplementaires
-            )
-
-            // Remplacer l'ancienne transaction par la nouvelle
-            transactionsActuelles[index] = transactionModifiee
-            Log.i("System.out", "VMU: modifieTXN ${idTransaction}")
-            // Mettre à jour la valeur de _transactions
-            _transactions.value = transactionsActuelles
-            Log.i("System.out", "VMU: TXNs mettre a jour")
-
-            // Sauvegarder les transactions mises à jour
-            sauvegarderTransaction(nomUtilisateur = utilisateur.nomUtilisateur)
-        }
-    }
 }
 

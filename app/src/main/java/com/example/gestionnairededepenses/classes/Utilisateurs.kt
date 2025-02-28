@@ -2,10 +2,10 @@ package com.example.gestionnairededepenses.classes
 
 data class Utilisateur(
 //    val context: Context, // Permettre le utilisation des fichiers privées pour chaque utilisateur
-    val nomUtilisateur: String, // Utilisé comme ID Utilisateur
-    val motDePasse: String,
-    var estVerifie: Boolean,
-    val nomEtPrenom: String,
+    val nomUtilisateur: String = "user@example.com", // Utilisé comme ID Utilisateur
+    val motDePasse: String = "password123",
+    var estVerifie: Boolean = false,
+    val nomEtPrenom: String = "Penny Counter",
 //    val transactions: MutableList<Transaction> = mutableListOf<Transaction>()
 )
 //{

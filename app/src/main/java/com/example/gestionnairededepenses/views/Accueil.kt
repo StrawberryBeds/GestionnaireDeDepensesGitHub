@@ -18,12 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.unit.dp
-import androidx.navigation.navArgument
 import com.example.gestionnairededepenses.viewModels.ViewModelUtilisateur
 
 @Composable
 fun Accueil(
-    viewModelUtilisateur: ViewModelUtilisateur,  onNavigateToTransactions: () -> Unit
+    viewModelUtilisateur: ViewModelUtilisateur,
+    onNavigateToTransactions: () -> Unit,
+    onNavigateToSeConnecter: () -> Unit
 ) {
 
     val utilisateur = viewModelUtilisateur.utilisateur
@@ -65,10 +66,7 @@ fun Accueil(
                 Button(
                     onClick = {
                         viewModelUtilisateur.deconnecterUtilisateur(nomUtilisateur = utilisateur.nomUtilisateur)
-                        navArgument(
-                            "se_connecter",
-                            builder = TODO()
-                        )
+                        onNavigateToSeConnecter()
                     },
                     modifier = Modifier
                         .fillMaxWidth()

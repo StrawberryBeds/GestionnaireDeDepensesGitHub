@@ -75,9 +75,14 @@ fun GestionnaireDeDepenses(
         composable("accueil") {
             Accueil(
                 viewModelUtilisateur,
+                onNavigateToSeConnecter = {
+                    navController.navigate("se_connecter") {
+                        popUpTo("se_connecter")
+                    }
+                },
                 onNavigateToTransactions = {
                     navController.navigate("ecran_transactions") {
-                        popUpTo("accueil") {
+                        popUpTo("ecran_tranactions") {
                             inclusive = false
                             saveState = false
                         }
@@ -105,7 +110,9 @@ fun GestionnaireDeDepenses(
 
         composable(
             "ecran_details/{idTransaction}",
-            arguments = listOf(navArgument("idTransaction") { type = NavType.StringType })
+            arguments = listOf(navArgument("idTransaction") {
+                type = NavType.StringType
+            })
         ) { backStackEntry ->
             val idTransaction = backStackEntry.arguments?.getString("idTransaction")
             idTransaction?.let {
@@ -127,3 +134,4 @@ fun GestionnaireDeDepenses(
         }
     }
 }
+
